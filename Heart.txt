@@ -1,0 +1,85 @@
+# Import necessary libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load the heart disease dataset
+heart_data = pd.read_csv('heart.csv')
+
+# Display the shape (number of rows and columns) of the dataset
+heart_data.shape
+
+# Display information about the dataset, including data types and non-null counts
+heart_data.info()
+
+# Check for missing values in the dataset
+heart_data.isnull().sum()
+
+# Get a statistical summary of the dataset
+heart_data.describe()
+
+# Count the occurrences of each class in the 'target' column
+heart_data['target'].value_counts()
+
+# Separate features (X) and target labels (Y)
+X = heart_data.drop(columns='target', axis=1)  # Features (all columns except 'target')
+Y = heart_data['target']  # Target labels (the 'target' column)
+
+# Split the dataset into training and testing sets (80% train, 20% test)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=2)
+
+# Print the shape of the original feature set and the training/testing sets
+print(X.shape, X_train.shape, X_test.shape)
+
+# Create a Logistic Regression model
+model = LogisticRegression()
+
+# Train the model on the training data
+model.fit(X_train, Y_train)
+
+# Make predictions on the training set
+X_train_prediction = model.predict(X_train)
+
+# Calculate the accuracy of the model on the training data
+training_data_accuracy = accuracy_score(X_train_prediction, Y_train)
+print('Accuracy on Training data : ', training_data_accuracy)
+
+# Make predictions on the testing set
+X_test_prediction = model.predict(X_test)
+
+# Calculate the accuracy of the model on the testing data
+test_data_accuracy = accuracy_score(X_test_prediction, Y_test)
+print('Accuracy on Test data : ', test_data_accuracy)
+
+# Input data for prediction (example values for a patient)
+input_data = (62, 0, 0, 140, 268, 0, 0, 160, 0, 3.6, 0, 2, 2)
+
+# Convert the input data to a numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+# Reshape the array to match the input shape expected by the model (1 instance)
+input_data_reshaped = input_data_as_numpy_array.reshape(1, -1)
+
+# Make a prediction using the trained model
+prediction = model.predict(input_data_reshaped)
+print(prediction)
+
+# Interpret the prediction result
+if (prediction[0] == 0):
+    print('The Person does not have a Heart Disease')
+else:
+    print('The Person has Heart Disease')
+
+# Save the trained model to a file using pickle
+import pickle
+filename = 'heart_disease_model.sav'
+pickle.dump(model, open(filename, 'wb'))
+
+# Load the saved model from the file
+loaded_model = pickle.load(open('heart_disease_model.sav', 'rb'))
+
+# Print the names of the features used in the model
+for column in X.columns:
+    print(column)
